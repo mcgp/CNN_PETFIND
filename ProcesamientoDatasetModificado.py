@@ -10,10 +10,13 @@ import glob
 
 
 # Función para redimensionar y renombrar las imágenes
-def process_image(file_path, label, output_dir, img_id):
+# Función para redimensionar y renombrar las imágenes
+def process_image(file_path, output_dir, label, img_id):
     img = Image.open(file_path)
     img = img.resize((128, 128))
-    new_filename = f"{output_dir}/{label}/{label}_{img_id}.jpg"
+    if img.mode == 'RGBA':
+        img = img.convert('RGB')
+    new_filename = f"{output_dir}/{label}_{img_id}.jpg"
     os.makedirs(os.path.dirname(new_filename), exist_ok=True)
     img.save(new_filename)
     os.remove(file_path)
@@ -42,7 +45,8 @@ def organizar_imagenes(all_files, output_directory):
             print(f"Ruta de imagen inválida: {img_path}")
             continue
         label = split_path[-2]
-        process_image(img_path, label, output_directory, img_id)
+        output_dir = os.path.join(output_directory, label)
+        process_image(img_path, output_dir, label, img_id)
 
 def dividir_datos_prueba(image_paths, test_pct):
     # Mezclamos las rutas de las imágenes
@@ -76,19 +80,19 @@ output_directory_perro_bing = 'datos/entrenamiento/dog'
 output_directory_gato_bing = 'datos/entrenamiento/cat'
 output_directory_perro_icrawler = 'datos/entrenamiento/dog/dog'
 output_directory_gato_icrawler = 'datos/entrenamiento/cat/cat'
-"""
+#"""
 # Descargamos las imágenes
-descargar_imagenes("dog", output_directory_perro_bing, output_directory_perro_icrawler)
-descargar_imagenes("cat", output_directory_gato_bing, output_directory_gato_icrawler)
-"""
+#descargar_imagenes("dog", output_directory_perro_bing, output_directory_perro_icrawler)
+#descargar_imagenes("cat", output_directory_gato_bing, output_directory_gato_icrawler)
+#"""
 # Obtenemos las rutas de las imágenes descargadas
 all_files_perro = obtener_rutas_imagenes(output_directory_perro_bing, output_directory_perro_icrawler)
 all_files_gato = obtener_rutas_imagenes(output_directory_gato_bing, output_directory_gato_icrawler)
-
+"""
 # Organizamos las imágenes
-#organizar_imagenes(all_files_perro, "datos/entrenamiento")
-#organizar_imagenes(all_files_gato, "datos/entrenamiento")
-
+organizar_imagenes(all_files_perro, "datos/entrenamiento")
+organizar_imagenes(all_files_gato, "datos/entrenamiento")
+"""
 # Obtenemos las rutas de todas las imágenes descargadas
 image_paths = []
 for root, dirs, files in os.walk("datos/entrenamiento"):
@@ -97,8 +101,7 @@ for root, dirs, files in os.walk("datos/entrenamiento"):
             image_paths.append(os.path.join(root, filename))
 
 # Imprimimos las rutas de las imágenes
-print(f"Image paths: {image_paths}")
-
+#print(f"Image paths: {image_paths}")
 # Dividimos los datos en conjuntos de entrenamiento y prueba
 test_image_paths = dividir_datos_prueba(image_paths, 0.2)
 
@@ -106,4 +109,4 @@ test_image_paths = dividir_datos_prueba(image_paths, 0.2)
 print(f"Test image paths: {test_image_paths}")
 
 # Movemos las imágenes a la carpeta de prueba
-mover_imagenes_prueba(test_image_paths, "datos/prueba")
+#mover_imagenes_prueba(test_image_paths, "datos/prueba")
